@@ -4,7 +4,9 @@ author: "David Huu Pham  //  +1 (604) 442-9038  //  dayvidpham@gmail.com"
 date: "Friday, January 7, 2022"
 fontsize: 10pt
 geometry: margin=0.5in
-output: pdf_document
+output: 
+  md_document:
+    variant: markdown_github
 ---
 
 ```{r setup, include=FALSE}
