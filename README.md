@@ -1,6 +1,14 @@
-``` r
-library(tidyverse)
-```
+# Summer 2022 Data Science Intern Challenge
+
+## Introduction
+
+### Dependencies
+
+To run the code blocks included in this README, the only depdencies required are R v4.0.5 and its associated package `tidyverse` v1.3.1.
+
+On the other hand, generating the PDF and an early draft of this README will require the `rmarkdown` package and a LaTeX installation.
+
+### Motivations and Tooling
 
 I choose R as my analysis tool, since the `tidyverse` packages provide a
 clean and uniform set of libraries/interfaces for simple data wrangling
@@ -8,29 +16,37 @@ and visualization. I find R’s data visualization package `ggplot2` to be
 easier to use with better out-of-the-box defaults than Python3’s
 `Matplotlib` and `Seaborn`, and since I have to write a report,
 RMarkdown provides a nice integrated way to present my thought process,
-findings, figures, code, and results.
+findings, figures, code, and results. RMarkdown and some manual changes were used to produce this README.
 
 I summarize the answers to the questions in the section, and then detail
 the analysis and interpretation in the section.
 
-The dataset is skewed right and the extreme outliers exhibits a strong
-influence on the means, shifting the mean much higher. If one is
-dedicated to using the mean as the metric of choice, then outliers would
-have to be excluded from its computation.
+## Summary
 
-If one is still interested in a summary statistic/metric for the average
-`order_amount`, then the median is more robust, behaving much better in
-the presence of extreme outliers.
+### Question 1: Average Order Value (AOV) for 100 Sneaker Shops
 
-The median of the `order_amount`, computed on all the data, is 284.
+**(a) Think about what could be going wrong with our calculation. Think about a better way to evaluate this data.** The dataset is skewed right and the extreme outliers exhibits a strong influence on the means, shifting the mean much higher.
 
-In total, 54 orders were shipped by Speedy Express.
+**(b) What metric would you report for this dataset?** The median is more robust, behaving much better in the presence of extreme outliers.
 
-“Peacock” is the last name of the employee associated with the most
+**(c) What is its value?** The median of the `order_amount`, computed on all the data, is 284.
+
+### Question 2: SQL Database of Customers
+
+**(a) How many orders were shipped by Speedy Express in total?** **(b) What is the last name of the employee with the most orders?** In total, 54 orders were shipped by Speedy Express.
+
+**(b) What is the last name of the employee with the most orders?** “Peacock” is the last name of the employee associated with the most
 orders.
 
-The name of the product with most quantities ordered by customers in
+**(c) What product was ordered the most by customers in Germany?** The name of the product with most quantities ordered by customers in
 Germany is “Boston Crab Meat”, and its ProductID is 40.
+
+
+## Analysis and Code
+
+### Question 1
+
+#### 1(a). Think about what could be going wrong with our calculation. Think about a better way to evaluate this data.
 
 Before I even load in the data, I look over the spreadsheet in Google
 Sheets to see if I can spot any anomalous data points. There are several
@@ -48,6 +64,10 @@ initial hypothesis.
 To test my intuitions, I will load in the data, try to reproduce the
 given AOV, calculate some summary statistics, and present a histogram of
 the `order_amount`.
+
+``` r
+library(tidyverse)  # loads dependencies
+```
 
 ``` r
 # Load in the data 
@@ -86,6 +106,8 @@ head(orders.data)   # Sanity check: did data load in correctly?
     ## 5 2017-03-01 04:35:11
     ## 6 2017-03-14 15:25:01
 
+The brief output from `head` seems to confirm that I've loaded the data in correctly, so I continue.
+
 ``` r
 # Calculate summary statistics in a reusable way
 summarize.data <- function(data.tbl) {
@@ -98,6 +120,7 @@ summarize.data <- function(data.tbl) {
     order.amt.std.dev = sd(order_amount)
   )
 }
+# Display summary statistics using all the data
 orders.data %>% 
   select(order_amount) %>%
   summarize.data
@@ -167,6 +190,7 @@ orders have order amounts that fall below 1000? How does the mean
 change?
 
 ``` r
+# Display summary statistics where most outliers are excluded
 orders.data %>% 
   filter(order_amount < 1000) %>%
   select(order_amount) %>%
@@ -178,6 +202,8 @@ orders.data %>%
     ##   <int>       <int>          <dbl>            <int>             <dbl>
     ## 1  4929     1483946           301.              284              156.
 
+#### 1(b). What metric would you report for this dataset?
+
 Now without the extreme outliers, we get pretty reasonable values for
 the mean. Note though that 98.58% of the data points lie below an
 `order_amount` of 1000– despite this, the influence of the extreme
@@ -186,8 +212,14 @@ can be seen, the medians remain robust in the presence of extreme
 outliers. Thus, I’d recommend to use the mean order value (MOV) as the
 average metric of choice.
 
+#### 1(c). What is its value?
+
 As can be seen from both `summarize.data` outputs, the median of the
 `order_amount` is 284 in both cases.
+
+### Question 2
+
+#### 2(a). How many orders were shipped by Speedy Express in total?
 
 In total, 54 orders were shipped by Speedy Express.
 
@@ -208,7 +240,9 @@ FROM
 ;
 ```
 
-Peacock is the last name of the employee associated with the most
+#### 2(b). What is the last name of the employee with the most orders?
+
+"Peacock" is the last name of the employee associated with the most
 orders, and their EmployeeID is 4.
 
 In this context, I interpret “the employee with the most orders” to mean
@@ -237,6 +271,8 @@ LIMIT
 ;
 ```
 
+#### 2(c). What product was ordered the most by customers in Germany?
+
 The product with most quantities ordered by customers in Germany is
 “Boston Crab Meat” which has a ProductID of 40, and has 160 quantities
 ordered.
@@ -245,7 +281,7 @@ I interpret “product … ordered the most by customers …” to mean *the
 product with the most quantities ordered*. For me, this is the most
 salient metric when considering the relationship between products and
 customers. Note: this is not necessarily the same as what is computed in
-part (b).
+part 2(b).
 
 ``` sql
 SELECT
