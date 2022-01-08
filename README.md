@@ -1,4 +1,4 @@
-# Summer 2022 Data Science Intern Challenge
+# Shopify Summer 2022 Data Science Intern Challenge
 
 ## Introduction
 
